@@ -3,7 +3,7 @@
 #		   Author:	 zaraki673, 2017
 #
 """
-<plugin key="AwoxSMP" name="Awox SmartPlug" author="zaraki673" version="1.0.0">
+<plugin key="AwoxSMP" name="Awox SmartPlug" author="zaraki673" version="1.0.1">
 	<params>
 		<param field="Address" label="MAC Address" width="150px" required="true"/>
 		<param field="Mode6" label="Debug" width="75px">
@@ -54,10 +54,10 @@ class BasePlugin:
 	def onStop(self):
 		Domoticz.Log("Plugin is stopping.")
 
-	def onConnect(self, Status, Description):
+	def onConnect(self, Connection, Status, Description):
 		return
 
-	def onMessage(self, Data, Status, Extra):
+	def onMessage(self, Connection, Data, Status, Extra):
 		return
 
 	def onCommand(self, Unit, Command, Level, Hue):
@@ -83,7 +83,7 @@ class BasePlugin:
 				Domoticz.Log('error when setting plug %s on (code %d)' % (Parameters["Address"], err.code))
 		return True
 
-	def onDisconnect(self):
+	def onDisconnect(self, Connection):
 		return
 
 	def onHeartbeat(self):
@@ -116,62 +116,59 @@ global _plugin
 _plugin = BasePlugin()
 
 def onStart():
-	global _plugin
-	_plugin.onStart()
+    global _plugin
+    _plugin.onStart()
 
 def onStop():
-	global _plugin
-	_plugin.onStop()
+    global _plugin
+    _plugin.onStop()
 
-def onConnect(Status, Description):
-	global _plugin
-	_plugin.onConnect(Status, Description)
+def onConnect(Connection, Status, Description):
+    global _plugin
+    _plugin.onConnect(Connection, Status, Description)
 
-def onMessage(Data, Status, Extra):
-	global _plugin
-	_plugin.onMessage(Data, Status, Extra)
+def onMessage(Connection, Data, Status, Extra):
+    global _plugin
+    _plugin.onMessage(Connection, Data, Status, Extra)
 
 def onCommand(Unit, Command, Level, Hue):
-	global _plugin
-	_plugin.onCommand(Unit, Command, Level, Hue)
+    global _plugin
+    _plugin.onCommand(Unit, Command, Level, Hue)
 
-def onDisconnect():
-	global _plugin
-	_plugin.onDisconnect()
+def onNotification(Data):
+    global _plugin
+    _plugin.onNotification(Data)
+
+def onDisconnect(Connection):
+    global _plugin
+    _plugin.onDisconnect(Connection)
 
 def onHeartbeat():
-	global _plugin
-	_plugin.onHeartbeat()
-
-# xml built in parser threw import error on expat so just do it manually
-def extractTagValue(tagName, XML):
-	startPos = XML.find(tagName)
-	endPos = XML.find(tagName, startPos+1)
-	if ((startPos == -1) or (endPos == -1)): Domoticz.Error("'"+tagName+"' not found in supplied XML")
-	return XML[startPos+len(tagName)+1:endPos-2]
-
-# Generic helper functions
-def DumpConfigToLog():
-	for x in Parameters:
-		if Parameters[x] != "":
-			Domoticz.Debug( "'" + x + "':'" + str(Parameters[x]) + "'")
-	Domoticz.Debug("Device count: " + str(len(Devices)))
-	for x in Devices:
-		Domoticz.Debug("Device:		   " + str(x) + " - " + str(Devices[x]))
-		Domoticz.Debug("Device ID:	   '" + str(Devices[x].ID) + "'")
-		Domoticz.Debug("Device Name:	 '" + Devices[x].Name + "'")
-		Domoticz.Debug("Device nValue:	" + str(Devices[x].nValue))
-		Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
-		Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
-	return	
+    global _plugin
+    _plugin.onHeartbeat()
 
 def UpdateDevice(Unit, nValue, sValue):
-	# Make sure that the Domoticz device still exists (they can be deleted) before updating it 
-	if (Unit in Devices):
-		if (Devices[Unit].nValue != nValue) or (Devices[Unit].sValue != sValue):
-			Devices[Unit].Update(nValue, str(sValue))
-			Domoticz.Log("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[Unit].Name+")")
-	return
+    # Make sure that the Domoticz device still exists (they can be deleted) before updating it 
+    if (Unit in Devices):
+        if (Devices[Unit].nValue != nValue) or (Devices[Unit].sValue != sValue):
+            Devices[Unit].Update(nValue, str(sValue))
+            Domoticz.Log("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[Unit].Name+")")
+    return
+
+    # Generic helper functions
+def DumpConfigToLog():
+    for x in Parameters:
+        if Parameters[x] != "":
+            Domoticz.Debug( "'" + x + "':'" + str(Parameters[x]) + "'")
+    Domoticz.Debug("Device count: " + str(len(Devices)))
+    for x in Devices:
+        Domoticz.Debug("Device:           " + str(x) + " - " + str(Devices[x]))
+        Domoticz.Debug("Device ID:       '" + str(Devices[x].ID) + "'")
+        Domoticz.Debug("Device Name:     '" + Devices[x].Name + "'")
+        Domoticz.Debug("Device nValue:    " + str(Devices[x].nValue))
+        Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
+        Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
+    return
 
 class SmartPlug(btle.Peripheral):
 	def __init__(self, addr):
