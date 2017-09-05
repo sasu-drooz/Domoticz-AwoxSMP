@@ -2,8 +2,13 @@
 #
 #		   Author:	 zaraki673, 2017
 #
+#		source : https://github.com/sourceperl/smartplugctl
+#
+#install bluepy first (https://github.com/IanHarvey/bluepy  - install it from source)
+#then you should need to make a symlink : sudo ln -s /usr/local/lib/python3.5/dist-packages/bluepy /usr/lib/python3.5/
+#
 """
-<plugin key="AwoxSMP" name="Awox SmartPlug" author="zaraki673" version="1.0.1">
+<plugin key="AwoxSMP" name="Awox SmartPlug" author="zaraki673" version="1.0.2" wikilink="https://github.com/sasu-drooz/Domoticz-AwoxSMP" externallink="http://www.awox.com/awox_product/smartplug/4/">
 	<params>
 		<param field="Address" label="MAC Address" width="150px" required="true"/>
 		<param field="Mode6" label="Debug" width="75px">
